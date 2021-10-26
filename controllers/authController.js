@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
-const {isGuest} = require('../middlewares/guards');
+const { isGuest } = require('../middlewares/guards');
 
 router.get('/register', isGuest(), (req, res) => {
     res.render('register');
@@ -9,7 +9,12 @@ router.get('/register', isGuest(), (req, res) => {
 router.post(
     '/register',
     isGuest(),
-    body('username').isLength({ min: 3 }).withMessage("Username is too short!"), //CHANGE ACCORDING TO REQ
+    body('username')
+        .isLength({ min: 3 }).withMessage("Username must be at least 3 characters long!").bail()
+        .isAlphanumeric().withMessage('Username may contain only English letters and digits'), //CHANGE ACCORDING TO REQ
+    body('password')
+        .isLength({ min: 3 }).withMessage("Password must be at least 3 characters long!").bail()
+        .isAlphanumeric().withMessage('Password may contain only English letters and digits'),
     body('rePass').custom((value, { req }) => {
         if (value != req.body.password) {
             throw new Error('Passwords dont match');
@@ -42,7 +47,7 @@ router.post(
     }
 )
 
-router.get('/login',isGuest(), (req, res) => {
+router.get('/login', isGuest(), (req, res) => {
     res.render('login');
 });
 
@@ -63,7 +68,7 @@ router.post('/login', isGuest(), async (req, res) => {
 });
 
 
-router.get('/logout', (req,res) => {
+router.get('/logout', (req, res) => {
     req.auth.logout();
     res.redirect('/');
 });
