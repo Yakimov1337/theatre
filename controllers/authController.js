@@ -28,7 +28,7 @@ router.post(
         try {
             if (errors.length > 0) {
                 //TO DO IMPROVE ERROR MSG
-                throw new Error('Validation error');
+                throw new Error(Object.values(errors).map(e=>e.msg).join('\n'));
             }
             await req.auth.register(req.body.username, req.body.password);
             res.redirect('/'); //TO DO CHANGE REDIRECT
@@ -36,7 +36,7 @@ router.post(
         } catch (err) {
             console.log(err.message);
             const ctx = {
-                errors,
+                errors: err.message.split('\n'),
                 userData: {
                     username: req.body.username
                 }
